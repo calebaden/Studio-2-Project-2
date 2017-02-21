@@ -5,15 +5,22 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     GameController gameController;
+    TunnelController tunnelController;
+
+    Rigidbody rb;
 
     public float moveSpeed = 10;
+    public float elevateSpeed = 8;
     float horizontal;
     float vertical;
+    bool isElevator;
+
 
 	// Use this for initialization
 	void Start ()
     {
         gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+        rb = GetComponent<Rigidbody>();
     }
 	
 	// Update is called once per frame
@@ -28,5 +35,31 @@ public class PlayerController : MonoBehaviour
 
             transform.Translate(horizontal, 0, vertical);
         }
+
+        if (isElevator && tunnelController)
+        {
+            float speed = (elevateSpeed * tunnelController.direction) * Time.deltaTime;
+            transform.Translate(Vector3.up * speed);
+        }
 	}
+
+    private void OnTriggerEnter(Collider otherObject)
+    {
+        if (otherObject.tag == "TunnelTrigger")
+        {
+            rb.useGravity = false;
+            tunnelController = otherObject.GetComponent<TunnelController>();
+            isElevator = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider otherObject)
+    {
+        if (otherObject.tag == "TunnelTrigger")
+        {
+            rb.useGravity = true;
+            tunnelController = null;
+            isElevator = false;
+        }
+    }
 }

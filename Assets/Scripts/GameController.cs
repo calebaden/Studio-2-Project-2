@@ -21,13 +21,13 @@ public class GameController : MonoBehaviour
             // If the game is already paused, unpause it
             if (isPaused)
             {
-                Time.timeScale = 0;
+                Time.timeScale = 1;
                 isPaused = false;
             }
             // If the game is not paused, pause it
             else
             {
-                Time.timeScale = 1;
+                Time.timeScale = 0;
                 isPaused = true;
             }
         }
