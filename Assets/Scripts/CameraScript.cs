@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-    GameController gameController;
+    UIController uiController;
 
     Vector2 _mouseAbsolute;
     Vector2 _smoothMouse;
@@ -23,7 +23,7 @@ public class CameraScript : MonoBehaviour
     // Use this for initialization
     void Start ()
     {
-        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+        uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
 
         // Set target direction to the camera's initial orientation.
         targetDirection = transform.localRotation.eulerAngles;
@@ -36,7 +36,7 @@ public class CameraScript : MonoBehaviour
 	void Update ()
     {
         // Check if the game is paused or not
-        if (!gameController.isPaused)
+        if (!uiController.isPaused)
         {
             // Ensure the cursor is always locked when set
             Cursor.lockState = CursorLockMode.Locked;

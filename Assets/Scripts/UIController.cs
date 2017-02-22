@@ -10,31 +10,70 @@ public class UIController : MonoBehaviour
     float selectTimer;
     float cooldown = 0.2f;
     public Image selectImg;
+    int sceneIndex;
+    public GameObject pauseElements;
+    public bool isPaused = false;
 
-	// Use this for initialization
-	void Start ()
+    // Use this for initialization
+    void Start ()
     {
-		
+        sceneIndex = SceneManager.GetActiveScene().buildIndex;
+        if (sceneIndex == 0)
+        {
+
+        }
+        else
+        {
+            pauseElements.SetActive(false);
+        }
 	}
 	
 	// Update is called once per frame
 	void Update ()
+    {
+        MenuNavigation();
+
+        if (sceneIndex == 0)
+        {
+            MainMenuControls();
+        }
+        else
+        {
+            InLevelControls();
+        }
+
+        if (selectImg)
+        {
+            Vector3 selectImagePos = selectImg.transform.localPosition;
+            selectImagePos.y = selectNum * -200;
+            selectImg.transform.localPosition = selectImagePos;
+        }
+    }
+
+    // Function that handles menu navigation
+    void MenuNavigation ()
     {
         if (selectTimer > 0)
         {
             selectTimer -= Time.deltaTime;
         }
 
-        if (Input.GetKey("s") && selectTimer <= 0)
+        if (Input.GetAxis("Vertical") < 0 && selectTimer <= 0)
         {
             selectNum++;
             selectTimer = cooldown;
         }
-        if (Input.GetKey("w") && selectTimer <= 0)
+        if (Input.GetAxis("Vertical") > 0 && selectTimer <= 0)
         {
             selectNum--;
             selectTimer = cooldown;
         }
+    }
+
+    // Function that controls main menu update
+    void MainMenuControls ()
+    {
+        selectNum = Mathf.Clamp(selectNum, 0, 2);
 
         if (Input.GetKeyDown("return"))
         {
@@ -51,14 +90,46 @@ public class UIController : MonoBehaviour
                 OnQuitClick();
             }
         }
+    }
 
-        selectNum = Mathf.Clamp(selectNum, 0, 2);
+    // Function that controls in level update
+    void InLevelControls ()
+    {
+        selectNum = Mathf.Clamp(selectNum, 0, 1);
 
-        Vector3 selectImagePos = selectImg.transform.localPosition;
-        selectImagePos.y = selectNum * -200;
-        selectImg.transform.localPosition = selectImagePos;
+        if (Input.GetButtonDown("Submit"))
+        {
+            if (selectNum == 0)
+            {
+                OnResumeClick();
+            }
+            else if (selectNum == 1)
+            {
+                OnReturnClick();
+            }
+        }
 
-	}
+        if (Input.GetButtonDown("Cancel"))
+        {
+            PauseGame(isPaused);
+        }
+    }
+
+    // Function that handles pausing the level
+    void PauseGame (bool pauseCheck)
+    {
+        if (pauseCheck)
+        {
+            OnResumeClick();
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            isPaused = true;
+            pauseElements.SetActive(true);
+            //Time.timeScale = 0;
+        }
+    }
 
     // Function that loads the level scene
     public void OnStartClick ()
@@ -76,6 +147,20 @@ public class UIController : MonoBehaviour
     public void OnQuitClick ()
     {
         Application.Quit();
+    }
+
+    // Function that resumes the level
+    public void OnResumeClick ()
+    {
+        isPaused = false;
+        pauseElements.SetActive(false);
+        //Time.timeScale = 1;
+    }
+
+    // Function that loads the main menu
+    public void OnReturnClick ()
+    {
+        SceneManager.LoadScene(0);
     }
 
     // Function that changes the highlighted button

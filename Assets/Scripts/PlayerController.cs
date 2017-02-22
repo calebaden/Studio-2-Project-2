@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    GameController gameController;
+    UIController uiController;
     TunnelController tunnelController;
 
     Rigidbody rb;
@@ -15,11 +15,10 @@ public class PlayerController : MonoBehaviour
     float vertical;
     bool isElevator;
 
-
 	// Use this for initialization
 	void Start ()
     {
-        gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
+        uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
         rb = GetComponent<Rigidbody>();
     }
 	
@@ -27,7 +26,7 @@ public class PlayerController : MonoBehaviour
 	void Update ()
     {
         // Check if the game is paused or not
-        if (!gameController.isPaused)
+        if (!uiController.isPaused)
         {
             // Set the horizontal and vertical variables to the inputs multiplied by movespeed and delta time
             horizontal = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;

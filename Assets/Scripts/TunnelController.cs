@@ -16,7 +16,6 @@ public class TunnelController : MonoBehaviour
 	void Start ()
     {
         zOffset = threads[0].transform.localScale.y * direction;
-        Debug.Log(zOffset);
 	}
 	
 	// Update is called once per frame
