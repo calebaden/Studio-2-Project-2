@@ -6,6 +6,8 @@ public class CameraScript : MonoBehaviour
 {
     UIController uiController;
 
+    public float lerpSpeed;
+
     Vector2 _mouseAbsolute;
     Vector2 _smoothMouse;
 
@@ -25,6 +27,8 @@ public class CameraScript : MonoBehaviour
     {
         uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
 
+        player = GameObject.FindGameObjectWithTag("Player");
+
         // Set target direction to the camera's initial orientation.
         targetDirection = transform.localRotation.eulerAngles;
 
@@ -35,9 +39,10 @@ public class CameraScript : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        // Check if the game is paused or not
         if (!uiController.isPaused)
         {
+            transform.position = Vector3.Lerp(transform.position, player.transform.position, lerpSpeed * Time.deltaTime);
+
             // Ensure the cursor is always locked when set
             Cursor.lockState = CursorLockMode.Locked;
 
@@ -46,7 +51,7 @@ public class CameraScript : MonoBehaviour
             var targetCharacterOrientation = Quaternion.Euler(targetCharacterDirection);
 
             // Get raw mouse input for a cleaner reading on more sensitive mice.
-            var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+            var mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X") * Time.deltaTime, Input.GetAxisRaw("Mouse Y") * Time.deltaTime);
 
             // Scale input against the sensitivity setting and multiply that against the smoothing value.
             mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
@@ -71,18 +76,8 @@ public class CameraScript : MonoBehaviour
 
             transform.localRotation *= targetOrientation;
 
-            // If there's a character body that acts as a parent to the camera
-            if (player)
-            {
-                var yRotation = Quaternion.AngleAxis(_mouseAbsolute.x, player.transform.up);
-                player.transform.localRotation = yRotation;
-                player.transform.localRotation *= targetCharacterOrientation;
-            }
-            else
-            {
-                var yRotation = Quaternion.AngleAxis(_mouseAbsolute.x, transform.InverseTransformDirection(Vector3.up));
-                transform.localRotation *= yRotation;
-            }
+            var yRotation = Quaternion.AngleAxis(_mouseAbsolute.x, transform.InverseTransformDirection(Vector3.up));
+            transform.localRotation *= yRotation;
         }
     }
 }

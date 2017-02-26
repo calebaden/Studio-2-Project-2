@@ -4,18 +4,22 @@ using UnityEngine;
 
 public class TunnelController : MonoBehaviour
 {
+    AudioController audioController;
+
     public GameObject[] threads;
     public GameObject beadObject;
 
     public int direction;
-    float baseInterval = 0.025f;
     public float spawnInterval;
-    float zOffset;
+    public float shiftCooldown;
+    public float shiftTimer;
+    float zOffset = 20;
 
 	// Use this for initialization
 	void Start ()
     {
-        zOffset = threads[0].transform.localScale.y * direction;
+        audioController = GameObject.FindGameObjectWithTag("UIController").GetComponent<AudioController>();
+        zOffset *= direction;
 	}
 	
 	// Update is called once per frame
@@ -23,11 +27,19 @@ public class TunnelController : MonoBehaviour
     {
         SpawnBead();
 
-        if (Input.GetKeyDown("f"))
+        if (shiftTimer > 0)
         {
+            shiftTimer -= Time.deltaTime;
+        }
+
+        if (Input.GetButtonDown("Submit") && shiftTimer <= 0)
+        {
+            audioController.PlayShiftClip();
             direction = ChangeDirection(direction);
+            shiftTimer += shiftCooldown;
         }
 	}
+
 
     // Function that spawns a bead
     void SpawnBead ()
@@ -52,10 +64,11 @@ public class TunnelController : MonoBehaviour
 
         Vector3 zOffVec = new Vector3(0, 0, zOffset);
         GameObject newBead = Instantiate(beadObject, transform);
+        BeadController bCon = newBead.GetComponent<BeadController>();
         newBead.transform.localPosition = threads[i].transform.localPosition - zOffVec;
         newBead.transform.localRotation = Quaternion.Euler(0, 0, 0);
-        newBead.GetComponent<BeadController>().baseSpeed += i;
-        newBead.GetComponent<BeadController>().tunnelController = this;
+        bCon.baseSpeed += i;
+        bCon.tunnelController = this;
     }
 
     public int ChangeDirection (int dir)

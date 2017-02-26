@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class BeadController : MonoBehaviour
 {
-    MeshRenderer meshRen;
     public TunnelController tunnelController;
 
     public float baseSpeed = 5;
@@ -14,7 +13,7 @@ public class BeadController : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        meshRen = GetComponent<MeshRenderer>();
+        
 	}
 	
 	// Update is called once per frame
@@ -28,21 +27,10 @@ public class BeadController : MonoBehaviour
 
     void OnTriggerEnter (Collider otherObject)
     {
+        // When the object collides with the Bead Void, destroy this game object
         if (otherObject.tag == "BeadVoid")
         {
             Destroy(gameObject);
         }
-
-        if (otherObject.tag == "Finish")
-        {
-            meshRen.enabled = false;
-        }
     }
-    void OnTriggerExit (Collider otherObject)
-    {
-        if (otherObject.tag == "Finish")
-        {
-            meshRen.enabled = true;
-        }
-    } 
 }

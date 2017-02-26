@@ -5,60 +5,55 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     UIController uiController;
-    TunnelController tunnelController;
 
-    Rigidbody rb;
+    public GameObject target;
 
-    public float moveSpeed = 10;
-    public float elevateSpeed = 8;
-    float horizontal;
-    float vertical;
-    bool isElevator;
+    public float baseSpeed = 0.1f;
+    float moveSpeed;
+    public float boostMulti = 2f;
 
 	// Use this for initialization
 	void Start ()
     {
+        moveSpeed = baseSpeed;
         uiController = GameObject.FindGameObjectWithTag("UIController").GetComponent<UIController>();
-        rb = GetComponent<Rigidbody>();
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
-        // Check if the game is paused or not
-        if (!uiController.isPaused)
+        if (Input.GetButtonDown("Submit"))
         {
-            // Set the horizontal and vertical variables to the inputs multiplied by movespeed and delta time
-            horizontal = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
-            vertical = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
-
-            transform.Translate(horizontal, 0, vertical);
+            moveSpeed *= boostMulti;
+        }
+        else if (Input.GetButtonUp("Submit"))
+        {
+            moveSpeed = baseSpeed;
         }
 
-        if (isElevator && tunnelController)
+        if (!uiController.isPaused)
         {
-            float speed = (elevateSpeed * tunnelController.direction) * Time.deltaTime;
-            transform.Translate(Vector3.up * speed);
+            transform.position = Vector3.MoveTowards(transform.position, target.transform.position, moveSpeed * Time.deltaTime);
         }
 	}
 
     private void OnTriggerEnter(Collider otherObject)
     {
-        if (otherObject.tag == "TunnelTrigger")
+        if (otherObject.tag == "Intersection")
         {
-            rb.useGravity = false;
-            tunnelController = otherObject.GetComponent<TunnelController>();
-            isElevator = true;
-        }
-    }
-
-    private void OnTriggerExit(Collider otherObject)
-    {
-        if (otherObject.tag == "TunnelTrigger")
-        {
-            rb.useGravity = true;
-            tunnelController = null;
-            isElevator = false;
+            IntersectionScript intersectionScript = otherObject.GetComponent<IntersectionScript>();
+            if (intersectionScript.targets.Length > 1)
+            {
+                target = intersectionScript.targets[Random.Range(0, intersectionScript.targets.Length)];
+            }
+            else if (intersectionScript.targets.Length == 1)
+            {
+                target = intersectionScript.targets[0];
+            }
+            else
+            {
+                Debug.Log("There are no available targets!");
+            }
         }
     }
 }
